@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFROART COFFEE AND BAKERY - Payment Processing Form</title>
+    <!-- Import jsPDF library for generating PDF documents -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h2>AFROART COFFEE AND BAKERY</h2>
+    <h3>Payment Processing Form</h3>
+    
+    <form id="paymentForm">
+        <!-- Input field for payee name -->
+        <label for="payee">Payee:</label>
+        <input type="text" id="payee" name="payee" required><br><br>
+        
+        <!-- Input field for payment details -->
+        <label for="paymentDetails">Payment Details:</label>
+        <textarea id="paymentDetails" name="paymentDetails" required></textarea><br><br>
+        
+        <!-- Input field for payment amount -->
+        <label for="paymentAmount">Payment Amount ($):</label>
+        <input type="number" id="paymentAmount" name="paymentAmount" required><br><br>
+        
+        <!-- Initiated by section -->
+        <label>Initiated by (Fahad Ahmed Abdi):</label><br>
+        <canvas id="initiatorSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
+        <button type="button" onclick="clearSignature('initiatorSignature')">Clear Signature</button><br><br>
+        
+        <!-- Reviewed by section -->
+        <label>Reviewed by (Abdiqadir Ali Hussein):</label><br>
+        <canvas id="reviewerSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
+        <button type="button" onclick="clearSignature('reviewerSignature')">Clear Signature</button><br><br>
+        
+        <!-- Approved by section -->
+        <label>Approved by (Bashir Mohamed Warsame):</label><br>
+        <canvas id="approverSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
+        <button type="button" onclick="clearSignature('approverSignature')">Clear Signature</button><br><br>
+        
+        <!-- Submit button to generate PDF document -->
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+    
+    <script>
+        // Function to clear the signature pad for a given canvas ID
+        function clearSignature(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Function to collect form data and generate a PDF file
+        function submitForm() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Collect form data
+            const payee = document.getElementById('payee').value;
+            const paymentDetails = document.getElementById('paymentDetails').value;
+            const amount = document.getElementById('paymentAmount').value;
+            
+            // Get signature data from canvases
+            const initiatorCanvas = document.getElementById('initiatorSignature');
+            const initiatorSignature = initiatorCanvas.toDataURL('image/png');
+            
+            const reviewerCanvas = document.getElementById('reviewerSignature');
+            const reviewerSignature = reviewerCanvas.toDataURL('image/png');
+            
+            const approverCanvas = document.getElementById('approverSignature');
+            const approverSignature = approverCanvas.toDataURL('image/png');
+            
+            // Add text content to PDF
+            doc.text(`AFROART COFFEE AND BAKERY`, 20, 20);
+            doc.text(`Payment Processing Form`, 20, 30);
+            doc.text(`Payee: ${payee}`, 20, 50);
+            doc.text(`Payment Details: ${paymentDetails}`, 20, 60);
+            doc.text(`Payment Amount: $${amount}`, 20, 70);
+            
+            // Add signatures to PDF
+            doc.text(`Initiated by (Fahad Ahmed Abdi):`, 20, 90);
+            doc.addImage(initiatorSignature, 'PNG', 20, 100, 100, 50);
+            
+            doc.text(`Reviewed by (Abdiqadir Ali Hussein):`, 20, 160);
+            doc.addImage(reviewerSignature, 'PNG', 20, 170, 100, 50);
+            
+            doc.text(`Approved by (Bashir Mohamed Warsame):`, 20, 230);
+            doc.addImage(approverSignature, 'PNG', 20, 240, 100, 50);
+            
+            // Save the generated PDF file
+            doc.save('AFROART_Payment_Form.pdf');
+        }
+    </script>
+</body>
+</html>
