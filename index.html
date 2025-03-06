@@ -12,7 +12,7 @@
     <h3>Payment Processing Form</h3>
     
     <form id="paymentForm">
-        <table border="1" cellpadding="5" cellspacing="0">
+        <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
             <tr>
                 <td><label for="payee">Payee:</label></td>
                 <td><input type="text" id="payee" name="payee" required></td>
@@ -47,14 +47,18 @@
     </form>
     
     <script>
-        // Function to convert KSH to USD
+        // Function to convert KSH to USD and format with commas
         function convertToDollar() {
             const exchangeRate = 1 / 128;
-            const kshAmount = document.getElementById('paymentAmountKSH').value;
-            document.getElementById('paymentAmountUSD').value = (kshAmount * exchangeRate).toFixed(2);
+            let kshAmount = document.getElementById('paymentAmountKSH').value;
+            kshAmount = Number(kshAmount).toLocaleString(); // Add commas to KSH amount
+            document.getElementById('paymentAmountKSH').value = kshAmount;
+            
+            let usdAmount = (parseFloat(kshAmount.replace(/,/g, '')) * exchangeRate).toFixed(2);
+            document.getElementById('paymentAmountUSD').value = Number(usdAmount).toLocaleString(); // Add commas to USD amount
         }
 
-        // Function to collect form data and generate a PDF file
+        // Function to collect form data and generate a PDF file with a table format
         function submitForm() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -68,20 +72,30 @@
             const reviewedBy = document.getElementById('reviewedBy').value;
             const approvedBy = document.getElementById('approvedBy').value;
             
-            // Add text content to PDF in table format
+            // Create table format in PDF
             doc.text(`AFROART COFFEE AND BAKERY`, 20, 20);
             doc.text(`Payment Processing Form`, 20, 30);
-            doc.text(`Payee: ${payee}`, 20, 50);
-            doc.text(`Payment Details: ${paymentDetails}`, 20, 60);
-            doc.text(`Payment Amount (KSH): ${amountKSH}`, 20, 70);
-            doc.text(`Dollar Equivalent ($): ${amountUSD}`, 20, 80);
-            doc.text(`Initiated by: ${initiatedBy}`, 20, 100);
-            doc.text(`Reviewed by: ${reviewedBy}`, 20, 110);
-            doc.text(`Approved by: ${approvedBy}`, 20, 120);
+            doc.autoTable({
+                startY: 40,
+                head: [['Field', 'Value']],
+                body: [
+                    ['Payee', payee],
+                    ['Payment Details', paymentDetails],
+                    ['Payment Amount (KSH)', amountKSH],
+                    ['Dollar Equivalent ($)', amountUSD],
+                    ['Initiated by', initiatedBy],
+                    ['Reviewed by', reviewedBy],
+                    ['Approved by', approvedBy],
+                ],
+                theme: 'grid'
+            });
             
             // Save the generated PDF file
             doc.save('AFROART_Payment_Form.pdf');
         }
     </script>
+    
+    <!-- Import jsPDF AutoTable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </body>
 </html>
