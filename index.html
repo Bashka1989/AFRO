@@ -47,20 +47,15 @@
     </form>
     
     <script>
-        // Function to convert KSH to USD and format with commas
+        // Function to convert KSH to USD
         function convertToDollar() {
             const exchangeRate = 1 / 128;
             let kshAmount = document.getElementById('paymentAmountKSH').value;
             
-            if (!kshAmount) return;
+            if (!kshAmount || isNaN(kshAmount)) return;
             
-            let numericKshAmount = parseFloat(kshAmount.replace(/,/g, ''));
-            if (isNaN(numericKshAmount)) return;
-            
-            document.getElementById('paymentAmountKSH').value = numericKshAmount.toLocaleString();
-            
-            let usdAmount = (numericKshAmount * exchangeRate).toFixed(2);
-            document.getElementById('paymentAmountUSD').value = parseFloat(usdAmount).toLocaleString();
+            let usdAmount = (parseFloat(kshAmount) * exchangeRate).toFixed(2);
+            document.getElementById('paymentAmountUSD').value = usdAmount;
         }
 
         // Function to collect form data and generate a PDF file with a table format
