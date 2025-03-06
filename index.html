@@ -6,6 +6,7 @@
     <title>AFROART COFFEE AND BAKERY - Payment Processing Form</title>
     <!-- Import jsPDF library for generating PDF documents -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/2.3.2/signature_pad.umd.min.js"></script>
 </head>
 <body>
     <h2>AFROART COFFEE AND BAKERY</h2>
@@ -27,28 +28,31 @@
         <!-- Initiated by section -->
         <label>Initiated by (Fahad Ahmed Abdi):</label><br>
         <canvas id="initiatorSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
-        <button type="button" onclick="clearSignature('initiatorSignature')">Clear Signature</button><br><br>
+        <button type="button" onclick="clearSignature(initiatorPad)">Clear Signature</button><br><br>
         
         <!-- Reviewed by section -->
         <label>Reviewed by (Abdiqadir Ali Hussein):</label><br>
         <canvas id="reviewerSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
-        <button type="button" onclick="clearSignature('reviewerSignature')">Clear Signature</button><br><br>
+        <button type="button" onclick="clearSignature(reviewerPad)">Clear Signature</button><br><br>
         
         <!-- Approved by section -->
         <label>Approved by (Bashir Mohamed Warsame):</label><br>
         <canvas id="approverSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
-        <button type="button" onclick="clearSignature('approverSignature')">Clear Signature</button><br><br>
+        <button type="button" onclick="clearSignature(approverPad)">Clear Signature</button><br><br>
         
         <!-- Submit button to generate PDF document -->
         <button type="button" onclick="submitForm()">Submit</button>
     </form>
     
     <script>
-        // Function to clear the signature pad for a given canvas ID
-        function clearSignature(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Initialize signature pads
+        const initiatorPad = new SignaturePad(document.getElementById('initiatorSignature'));
+        const reviewerPad = new SignaturePad(document.getElementById('reviewerSignature'));
+        const approverPad = new SignaturePad(document.getElementById('approverSignature'));
+
+        // Function to clear the signature pad
+        function clearSignature(pad) {
+            pad.clear();
         }
 
         // Function to collect form data and generate a PDF file
@@ -61,15 +65,10 @@
             const paymentDetails = document.getElementById('paymentDetails').value;
             const amount = document.getElementById('paymentAmount').value;
             
-            // Get signature data from canvases
-            const initiatorCanvas = document.getElementById('initiatorSignature');
-            const initiatorSignature = initiatorCanvas.toDataURL('image/png');
-            
-            const reviewerCanvas = document.getElementById('reviewerSignature');
-            const reviewerSignature = reviewerCanvas.toDataURL('image/png');
-            
-            const approverCanvas = document.getElementById('approverSignature');
-            const approverSignature = approverCanvas.toDataURL('image/png');
+            // Get signature data from signature pads
+            const initiatorSignature = initiatorPad.toDataURL('image/png');
+            const reviewerSignature = reviewerPad.toDataURL('image/png');
+            const approverSignature = approverPad.toDataURL('image/png');
             
             // Add text content to PDF
             doc.text(`AFROART COFFEE AND BAKERY`, 20, 20);
