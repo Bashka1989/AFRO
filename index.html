@@ -27,7 +27,7 @@
             </tr>
             <tr>
                 <td><label for="paymentAmountUSD">Dollar Equivalent ($):</label></td>
-                <td><input type="number" id="paymentAmountUSD" name="paymentAmountUSD" readonly></td>
+                <td><input type="text" id="paymentAmountUSD" name="paymentAmountUSD" readonly></td>
             </tr>
             <tr>
                 <td>Initiated by:</td>
@@ -51,11 +51,16 @@
         function convertToDollar() {
             const exchangeRate = 1 / 128;
             let kshAmount = document.getElementById('paymentAmountKSH').value;
-            kshAmount = Number(kshAmount).toLocaleString(); // Add commas to KSH amount
-            document.getElementById('paymentAmountKSH').value = kshAmount;
             
-            let usdAmount = (parseFloat(kshAmount.replace(/,/g, '')) * exchangeRate).toFixed(2);
-            document.getElementById('paymentAmountUSD').value = Number(usdAmount).toLocaleString(); // Add commas to USD amount
+            if (!kshAmount) return;
+            
+            let numericKshAmount = parseFloat(kshAmount.replace(/,/g, ''));
+            if (isNaN(numericKshAmount)) return;
+            
+            document.getElementById('paymentAmountKSH').value = numericKshAmount.toLocaleString();
+            
+            let usdAmount = (numericKshAmount * exchangeRate).toFixed(2);
+            document.getElementById('paymentAmountUSD').value = parseFloat(usdAmount).toLocaleString();
         }
 
         // Function to collect form data and generate a PDF file with a table format
