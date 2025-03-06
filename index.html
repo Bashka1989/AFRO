@@ -6,75 +6,47 @@
     <title>AFROART COFFEE AND BAKERY - Payment Processing Form</title>
     <!-- Import jsPDF library for generating PDF documents -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/2.3.2/signature_pad.umd.min.js"></script>
-    <style>
-        canvas {
-            touch-action: none;
-        }
-    </style>
 </head>
 <body>
     <h2>AFROART COFFEE AND BAKERY</h2>
     <h3>Payment Processing Form</h3>
     
     <form id="paymentForm">
-        <!-- Input field for payee name -->
-        <label for="payee">Payee:</label>
-        <input type="text" id="payee" name="payee" required><br><br>
-        
-        <!-- Input field for payment details -->
-        <label for="paymentDetails">Payment Details:</label>
-        <textarea id="paymentDetails" name="paymentDetails" required></textarea><br><br>
-        
-        <!-- Input field for payment amount in KSH -->
-        <label for="paymentAmountKSH">Payment Amount (KSH):</label>
-        <input type="number" id="paymentAmountKSH" name="paymentAmountKSH" required oninput="convertToDollar()"><br><br>
-        
-        <!-- Input field for Dollar Equivalent -->
-        <label for="paymentAmountUSD">Dollar Equivalent ($):</label>
-        <input type="number" id="paymentAmountUSD" name="paymentAmountUSD" readonly><br><br>
-        
-        <!-- Initiated by section -->
-        <label>Initiated by (Fahad Ahmed Abdi):</label><br>
-        <canvas id="initiatorSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
-        <button type="button" onclick="clearSignature(initiatorPad)">Clear Signature</button><br><br>
-        
-        <!-- Reviewed by section -->
-        <label>Reviewed by (Abdiqadir Ali Hussein):</label><br>
-        <canvas id="reviewerSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
-        <button type="button" onclick="clearSignature(reviewerPad)">Clear Signature</button><br><br>
-        
-        <!-- Approved by section -->
-        <label>Approved by (Bashir Mohamed Warsame):</label><br>
-        <canvas id="approverSignature" width="300" height="100" style="border:1px solid #000;"></canvas><br>
-        <button type="button" onclick="clearSignature(approverPad)">Clear Signature</button><br><br>
-        
-        <!-- Submit button to generate PDF document -->
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <td><label for="payee">Payee:</label></td>
+                <td><input type="text" id="payee" name="payee" required></td>
+            </tr>
+            <tr>
+                <td><label for="paymentDetails">Payment Details:</label></td>
+                <td><textarea id="paymentDetails" name="paymentDetails" required></textarea></td>
+            </tr>
+            <tr>
+                <td><label for="paymentAmountKSH">Payment Amount (KSH):</label></td>
+                <td><input type="number" id="paymentAmountKSH" name="paymentAmountKSH" required oninput="convertToDollar()"></td>
+            </tr>
+            <tr>
+                <td><label for="paymentAmountUSD">Dollar Equivalent ($):</label></td>
+                <td><input type="number" id="paymentAmountUSD" name="paymentAmountUSD" readonly></td>
+            </tr>
+            <tr>
+                <td>Initiated by:</td>
+                <td><input type="text" id="initiatedBy" name="initiatedBy" required></td>
+            </tr>
+            <tr>
+                <td>Reviewed by:</td>
+                <td><input type="text" id="reviewedBy" name="reviewedBy" required></td>
+            </tr>
+            <tr>
+                <td>Approved by:</td>
+                <td><input type="text" id="approvedBy" name="approvedBy" required></td>
+            </tr>
+        </table>
+        <br>
         <button type="button" onclick="submitForm()">Submit</button>
     </form>
     
     <script>
-        // Ensure signature pads work on touch and mouse devices
-        function setupSignaturePad(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            return new SignaturePad(canvas, {
-                minWidth: 1,
-                maxWidth: 3,
-                penColor: "black",
-                backgroundColor: "white"
-            });
-        }
-
-        // Initialize signature pads
-        const initiatorPad = setupSignaturePad('initiatorSignature');
-        const reviewerPad = setupSignaturePad('reviewerSignature');
-        const approverPad = setupSignaturePad('approverSignature');
-
-        // Function to clear the signature pad
-        function clearSignature(pad) {
-            pad.clear();
-        }
-
         // Function to convert KSH to USD
         function convertToDollar() {
             const exchangeRate = 1 / 128;
@@ -92,29 +64,20 @@
             const paymentDetails = document.getElementById('paymentDetails').value;
             const amountKSH = document.getElementById('paymentAmountKSH').value;
             const amountUSD = document.getElementById('paymentAmountUSD').value;
+            const initiatedBy = document.getElementById('initiatedBy').value;
+            const reviewedBy = document.getElementById('reviewedBy').value;
+            const approvedBy = document.getElementById('approvedBy').value;
             
-            // Get signature data from signature pads
-            const initiatorSignature = initiatorPad.toDataURL('image/png');
-            const reviewerSignature = reviewerPad.toDataURL('image/png');
-            const approverSignature = approverPad.toDataURL('image/png');
-            
-            // Add text content to PDF
+            // Add text content to PDF in table format
             doc.text(`AFROART COFFEE AND BAKERY`, 20, 20);
             doc.text(`Payment Processing Form`, 20, 30);
             doc.text(`Payee: ${payee}`, 20, 50);
             doc.text(`Payment Details: ${paymentDetails}`, 20, 60);
             doc.text(`Payment Amount (KSH): ${amountKSH}`, 20, 70);
             doc.text(`Dollar Equivalent ($): ${amountUSD}`, 20, 80);
-            
-            // Add signatures to PDF
-            doc.text(`Initiated by (Fahad Ahmed Abdi):`, 20, 100);
-            doc.addImage(initiatorSignature, 'PNG', 20, 110, 100, 50);
-            
-            doc.text(`Reviewed by (Abdiqadir Ali Hussein):`, 20, 170);
-            doc.addImage(reviewerSignature, 'PNG', 20, 180, 100, 50);
-            
-            doc.text(`Approved by (Bashir Mohamed Warsame):`, 20, 230);
-            doc.addImage(approverSignature, 'PNG', 20, 240, 100, 50);
+            doc.text(`Initiated by: ${initiatedBy}`, 20, 100);
+            doc.text(`Reviewed by: ${reviewedBy}`, 20, 110);
+            doc.text(`Approved by: ${approvedBy}`, 20, 120);
             
             // Save the generated PDF file
             doc.save('AFROART_Payment_Form.pdf');
