@@ -7,6 +7,11 @@
     <!-- Import jsPDF library for generating PDF documents -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/2.3.2/signature_pad.umd.min.js"></script>
+    <style>
+        canvas {
+            touch-action: none;
+        }
+    </style>
 </head>
 <body>
     <h2>AFROART COFFEE AND BAKERY</h2>
@@ -21,9 +26,13 @@
         <label for="paymentDetails">Payment Details:</label>
         <textarea id="paymentDetails" name="paymentDetails" required></textarea><br><br>
         
-        <!-- Input field for payment amount -->
-        <label for="paymentAmount">Payment Amount ($):</label>
-        <input type="number" id="paymentAmount" name="paymentAmount" required><br><br>
+        <!-- Input field for payment amount in KSH -->
+        <label for="paymentAmountKSH">Payment Amount (KSH):</label>
+        <input type="number" id="paymentAmountKSH" name="paymentAmountKSH" required oninput="convertToDollar()"><br><br>
+        
+        <!-- Input field for Dollar Equivalent -->
+        <label for="paymentAmountUSD">Dollar Equivalent ($):</label>
+        <input type="number" id="paymentAmountUSD" name="paymentAmountUSD" readonly><br><br>
         
         <!-- Initiated by section -->
         <label>Initiated by (Fahad Ahmed Abdi):</label><br>
@@ -45,14 +54,32 @@
     </form>
     
     <script>
+        // Ensure signature pads work on touch and mouse devices
+        function setupSignaturePad(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            return new SignaturePad(canvas, {
+                minWidth: 1,
+                maxWidth: 3,
+                penColor: "black",
+                backgroundColor: "white"
+            });
+        }
+
         // Initialize signature pads
-        const initiatorPad = new SignaturePad(document.getElementById('initiatorSignature'));
-        const reviewerPad = new SignaturePad(document.getElementById('reviewerSignature'));
-        const approverPad = new SignaturePad(document.getElementById('approverSignature'));
+        const initiatorPad = setupSignaturePad('initiatorSignature');
+        const reviewerPad = setupSignaturePad('reviewerSignature');
+        const approverPad = setupSignaturePad('approverSignature');
 
         // Function to clear the signature pad
         function clearSignature(pad) {
             pad.clear();
+        }
+
+        // Function to convert KSH to USD
+        function convertToDollar() {
+            const exchangeRate = 1 / 128;
+            const kshAmount = document.getElementById('paymentAmountKSH').value;
+            document.getElementById('paymentAmountUSD').value = (kshAmount * exchangeRate).toFixed(2);
         }
 
         // Function to collect form data and generate a PDF file
@@ -63,7 +90,8 @@
             // Collect form data
             const payee = document.getElementById('payee').value;
             const paymentDetails = document.getElementById('paymentDetails').value;
-            const amount = document.getElementById('paymentAmount').value;
+            const amountKSH = document.getElementById('paymentAmountKSH').value;
+            const amountUSD = document.getElementById('paymentAmountUSD').value;
             
             // Get signature data from signature pads
             const initiatorSignature = initiatorPad.toDataURL('image/png');
@@ -75,14 +103,15 @@
             doc.text(`Payment Processing Form`, 20, 30);
             doc.text(`Payee: ${payee}`, 20, 50);
             doc.text(`Payment Details: ${paymentDetails}`, 20, 60);
-            doc.text(`Payment Amount: $${amount}`, 20, 70);
+            doc.text(`Payment Amount (KSH): ${amountKSH}`, 20, 70);
+            doc.text(`Dollar Equivalent ($): ${amountUSD}`, 20, 80);
             
             // Add signatures to PDF
-            doc.text(`Initiated by (Fahad Ahmed Abdi):`, 20, 90);
-            doc.addImage(initiatorSignature, 'PNG', 20, 100, 100, 50);
+            doc.text(`Initiated by (Fahad Ahmed Abdi):`, 20, 100);
+            doc.addImage(initiatorSignature, 'PNG', 20, 110, 100, 50);
             
-            doc.text(`Reviewed by (Abdiqadir Ali Hussein):`, 20, 160);
-            doc.addImage(reviewerSignature, 'PNG', 20, 170, 100, 50);
+            doc.text(`Reviewed by (Abdiqadir Ali Hussein):`, 20, 170);
+            doc.addImage(reviewerSignature, 'PNG', 20, 180, 100, 50);
             
             doc.text(`Approved by (Bashir Mohamed Warsame):`, 20, 230);
             doc.addImage(approverSignature, 'PNG', 20, 240, 100, 50);
